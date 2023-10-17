@@ -317,7 +317,7 @@ def get_item(x):
     return x.cpu().numpy().item()
 
 def main():
-    fname = 'correlation_logs/sample_correlations.csv'
+    fname = None #PATH FOR LOGGING CORRELATIONS
     outf = open(fname, 'w')
 
     layers = list(range(6))
