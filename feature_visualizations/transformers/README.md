@@ -1,0 +1,7 @@
+Code for visualizing token groups highlighted by AGOP of a GPT2-architecture language model trained on the TinyStories dataset.  This code relies on the `transformers` library from HuggingFace (`https://huggingface.co/docs/transformers/index`).  
+
+The code in `get_AGOP_token_groups.py` produces a hdf5 file using `hickle` that stores tokens and values indicating whether the token is associated with a given eigenvector of AGOP.  To use the code, one needs to provide the path to the Byte-Pair Encoder (`BPE_PATH`) in line 62, the path to the token embedding in line 63, and the path to value AGOPs in line 64.  We provide links to these files for our language model trained on TinyStories here: [TinyStories feature visualization data](https://drive.google.com/drive/u/1/folders/1rnZP2_K9ZOC9_TKxU4VgXGjSAz5fW_pl). 
+
+One can then customize the text to highlight in line 73 and also the eigenvector of AGOP to use in line 26.  We have provided 4 sample indices for eigenvectors in lines 23-26 that identify thematically related token groups such as food terms, adjectives, past-tense verbs, and names in TinyStories data. The triples represent singular value index, head index, and layer index into the transformer.  
+
+To produce the visualizations from our paper, one can then start the Jupyter notebook provided in `TokenColoring.ipynb`.  This notebook extracts the hickled file from `get_AGOP_token_groups.py` and colors the text according to projection onto the selected AGOP eigenvector.
