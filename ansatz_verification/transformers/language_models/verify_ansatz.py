@@ -5,25 +5,20 @@ from model import GPTConfig, GPT
 import torch.nn as nn
 from copy import deepcopy
 from functorch import jacrev, vmap
-import visdom
 from torch.linalg import norm
 from torch.nn import functional as F
 import math
 import random
+
 SEED = 1717
-import hickle
 from tqdm import tqdm
 import torch.backends.cudnn as cudnn
-
 
 torch.manual_seed(SEED)
 random.seed(SEED)
 np.random.seed(SEED)
 torch.cuda.manual_seed(SEED)
 cudnn.benchmark = True
-
-vis = visdom.Visdom('http://127.0.0.1', use_incoming_socket=False)
-vis.close(env='main')
 
 
 HEAD_IDX = None
