@@ -1,0 +1,3 @@
+Code for verifying the Neural Feature Ansatz for GPT2-architecture language models. This code requires training models using the NanoGPT codebase `https://github.com/karpathy/nanoGPT`.  After training language models utilizing the NanoGPT codebase, one can then set the vocabulary size of the model in line 321, the path to the trained model in line 322, and the data directory (containing `train.bin` from the NanoGPT tutorial) in line 323. Lastly, one needs to set the filename in line 315 to log query, key, value AGOP and NFM correlations to file. 
+
+Note that this code was written using PyTorch version 1.13.  When using the code with later versions of PyTorch, note that flash attention needs to be disabled for the Jacobian computations utilized in `verify_ansatz.py`.  
