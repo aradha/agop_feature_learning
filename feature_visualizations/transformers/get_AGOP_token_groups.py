@@ -59,9 +59,9 @@ def decode_example(example, decode):
 
 
 def main():
-    BPE_PATH = '/home/aradha/NeuralModels/transformers/nanogpt/tokenizers/3200_vocab_bpe/'
-    TOKEN_EMBEDDING_PATH = 'token_embedding.h'
-    AGOP_DIR = '/home/aradha/NeuralModels/transformers/nanogpt/saved_agops/'
+    BPE_PATH = None # Path to Byte-Pair Encoder
+    TOKEN_EMBEDDING_PATH = None # Path to Token Embedding
+    AGOP_DIR = None # Path to AGOP directory
 
     agops, fnames = load_agops(AGOP_DIR)
     encode, decode = get_bpe(BPE_PATH)
