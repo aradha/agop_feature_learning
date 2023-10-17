@@ -323,9 +323,9 @@ def main():
     layers = list(range(6))
     heads = list(range(6))
 
-    VOCAB_SIZE = 65
-    ckpt_path = '/home/aradha/NeuralModels/transformers/nanogpt/out-shakespeare-char/ckpt.pt'
-    data_dir = '/home/aradha/NeuralModels/transformers/nanogpt/data/shakespeare_char/'
+    VOCAB_SIZE = 65 # VOCAB SIZE FOR LLM
+    ckpt_path = None # PATH TO MODEL CHECKPOINT
+    data_dir = None # PATH TO DATA DIRECTORY
 
     for layer in layers:
         for head in heads:
