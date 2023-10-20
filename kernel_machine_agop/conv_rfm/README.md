@@ -3,10 +3,10 @@ This notebook includes visualizations for the eigenvectors of the patchwise AGOP
 
 Requirements:
 
-pytorch == 1.13.0 
-jax == 0.4.5
-jaxlib == 0.4.4
-neural-tangents == 0.6.2
-scikit-learn == 1.1.3
-einops
+pytorch == 1.13.0 \
+jax == 0.4.5 \
+jaxlib == 0.4.4 \
+neural-tangents == 0.6.2 \
+scikit-learn == 1.1.3 \
+einops \
 tqdm
