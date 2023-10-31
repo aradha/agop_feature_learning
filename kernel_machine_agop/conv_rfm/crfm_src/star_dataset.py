@@ -12,14 +12,14 @@ IMG_SIZE = 32
 
 def draw_star(ex, v, offset=(0, 0), c=3):
     q, r = offset
-    ex[:c, 5+q:6+q, 7+r:14+r] = v
-    ex[:c, 4+q, 9+r:12+r] = v
-    ex[:c, 3+q, 10+r] = v
-    ex[:c, 6+q, 8+r:13+r] = v
-    ex[:c, 7+q, 9+r:12+r] = v
-    ex[:c, 8+q, 8+r:13+r] = v
-    ex[:c, 9+q, 8+r:10+r] = v
-    ex[:c, 9+q, 11+r:13+r] = v
+    ex[-1, 5+q:6+q, 7+r:14+r] = v
+    ex[-1, 4+q, 9+r:12+r] = v
+    ex[-1, 3+q, 10+r] = v
+    ex[-1, 6+q, 8+r:13+r] = v
+    ex[-1, 7+q, 9+r:12+r] = v
+    ex[-1, 8+q, 8+r:13+r] = v
+    ex[-1, 9+q, 8+r:10+r] = v
+    ex[-1, 9+q, 11+r:13+r] = v
     return ex
 
 def star_dataset(num_samples=200, size=(3, IMG_SIZE, IMG_SIZE)):
@@ -38,11 +38,6 @@ def star_dataset(num_samples=200, size=(3, IMG_SIZE, IMG_SIZE)):
         ex = np.random.normal(size=size) * 3e-1
         ex = torch.from_numpy(ex).float()
         ex = draw_star(ex, 1, offset=(q, r), c=3)
-
-        
-        q = random.randint(0, IMG_SIZE - 15)
-        r = random.randint(0, IMG_SIZE - 15)
-        ex = draw_star(ex, -1, offset=(q, r), c=3)
 
         y = 1
         y_val = labelset[y]
