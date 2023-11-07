@@ -7,7 +7,7 @@ from torch.nn.functional import pad
 import dataset
 from numpy.linalg import eig
 from copy import deepcopy
-from torch.linalg import norm
+from torch.linalg import norm, svd
 from torchvision import models
 
 SEED = 2323
@@ -173,12 +173,20 @@ def verify_NFA(net, init_net, trainloader, layer_idx=0):
                   padding=(pad1, pad2),
                   stride=(s1, s2),
                   layer_idx=l_idx)
+    G = sqrt(G)
 
     r_val = correlation(M, G)
     print("Correlation between Trained CNFM and AGOP: ", r_val)
     print("Final: ", i_val, r_val)
 
     return i_val.data.numpy(), r_val.data.numpy()
+
+
+def sqrt(G):
+    U, s, Vt = svd(G)
+    s = torch.pow(s, 1./2)
+    G = U @ torch.diag(s) @ Vt
+    return G
 
 
 def main():

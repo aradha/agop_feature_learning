@@ -7,7 +7,7 @@ from torch.nn.functional import pad
 import dataset
 from numpy.linalg import eig
 from copy import deepcopy
-from torch.linalg import norm
+from torch.linalg import norm, svd
 from torchvision import models
 import torchvision
 
@@ -262,6 +262,7 @@ def verify_NFA(net, init_net, trainloader, layer_idx=0):
     print("Correlation between Initial and Trained CNFM: ", i_val)
 
     G = get_grads(net, patchnet, trainloader, kernel=(q, s), layer_idx=l_idx)
+    G = sqrt(G)
 
     r_val = correlation(M, G)
 
@@ -287,6 +288,13 @@ def unroll_net(net):
     modules += [nn.Flatten(), list(net.children())[-1]]
     net = nn.Sequential(*modules)
     return net
+
+
+def sqrt(G):
+    U, s, Vt = svd(G)
+    s = torch.pow(s, 1./2)
+    G = U @ torch.diag(s) @ Vt
+    return G
 
 
 def main():
