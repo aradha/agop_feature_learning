@@ -5,7 +5,7 @@ from model import GPTConfig, GPT
 import torch.nn as nn
 from copy import deepcopy
 from functorch import jacrev, vmap
-from torch.linalg import norm
+from torch.linalg import norm, svd
 from torch.nn import functional as F
 import math
 import random
@@ -302,6 +302,10 @@ def check_ansatz(layer_idx, head_idx, ckpt_path, data_dir,
                 IDX += BATCH_SIZE
                 OUT_IDX += OUT_SIZE
 
+    GQ = sqrt(GQ)
+    GK = sqrt(GK)
+    GV = sqrt(GV)
+
     print(layer_idx, head_idx, "Query Correlation: ", correlation(MQ, GQ))
     print(layer_idx, head_idx, "Key Correlation: ", correlation(MK, GK))
     print(layer_idx, head_idx, "Value Correlation: ", correlation(MV, GV))
@@ -310,6 +314,14 @@ def check_ansatz(layer_idx, head_idx, ckpt_path, data_dir,
 
 def get_item(x):
     return x.cpu().numpy().item()
+
+
+def sqrt(G):
+    U, s, Vt = svd(G)
+    s = torch.pow(s, 1./2)
+    G = U @ torch.diag(s) @ Vt
+    return G
+
 
 def main():
     fname = None #PATH FOR LOGGING CORRELATIONS

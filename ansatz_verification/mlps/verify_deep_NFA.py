@@ -3,7 +3,7 @@ import torch
 import random
 import dataset
 import neural_model
-from torch.linalg import norm
+from torch.linalg import norm, svd
 from functorch import jacrev, vmap
 
 SEED = 1717
@@ -157,6 +157,8 @@ def egop(net, dataset, centering=False):
 
 
 def correlate(M, G):
+    M -= M.mean()
+    G -= G.mean()
     M = M.double()
     G = G.double()
     normM = norm(M.flatten())
@@ -242,12 +244,24 @@ def verify_NFA(path, dataset_name, feature_idx=None, layer_idx=0):
     G = egop(subnet, out, centering=True)
     G2 = egop(subnet, out, centering=False)
 
+    G = sqrt(G)
+    G2 = sqrt(G2)
+
     centered_correlation = correlate(torch.from_numpy(M), G)
     uncentered_correlation = correlate(torch.from_numpy(M), G2)
     print("Full Matrix Correlation Centered: " , centered_correlation)
     print("Full Matrix Correlation Uncentered: " , uncentered_correlation)
 
     return init_correlation, centered_correlation, uncentered_correlation
+
+
+def sqrt(G):
+    U, s, Vt = svd(G)
+    s = torch.pow(s, 1./2)
+    G = U @ torch.diag(s) @ Vt
+    return G
+
+
 
 def main():
 

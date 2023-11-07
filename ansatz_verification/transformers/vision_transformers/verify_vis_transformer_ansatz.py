@@ -5,9 +5,9 @@ import numpy as np
 from functorch import jacrev, vmap
 from torch.nn.functional import pad
 import dataset
-from numpy.linalg import eig, svd
+from numpy.linalg import eig
 from copy import deepcopy
-from torch.linalg import norm
+from torch.linalg import norm, svd
 from torchvision import models
 import torchvision
 import math
@@ -297,6 +297,10 @@ def verify_tnfa(LAYER_IDX, head_idx, imagenet_path):
         if completed_count == MAX_IDX:
             break
 
+    GQ = sqrt(GQ)
+    GK = sqrt(GK)
+    GV = sqrt(GV)
+
     cq = get_item(correlation(MQ, GQ))
     ck = get_item(correlation(MK, GK))
     cv = get_item(correlation(MV, GV))
@@ -310,6 +314,13 @@ def verify_tnfa(LAYER_IDX, head_idx, imagenet_path):
 
 def get_item(x):
     return x.cpu().data.numpy().item()
+
+def sqrt(G):
+    U, s, Vt = svd(G)
+    s = torch.pow(s, 1./2)
+    G = U @ torch.diag(s) @ Vt
+    return G
+
 
 def main():
     fname = None #PATH TO CORRELATION LOG FILE
