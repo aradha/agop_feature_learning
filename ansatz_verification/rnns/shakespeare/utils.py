@@ -4,6 +4,13 @@ import torch
 from tqdm import tqdm
 from functorch import jacrev, vmap
 
+def matrix_sqrt(M):
+    device = M.device
+    S, V = torch.linalg.eigh(M.cuda())
+    S[S<0] = 0
+    S = torch.diag(S**0.5)
+    return (V @ S @ V.T).to(device)
+
 def corr(A_, B_):
     assert(A_.shape == B_.shape)
 
@@ -38,7 +45,7 @@ def measure_rnn_nfa(net, x, y):
         output, hidden = net(xi, hidden)
     return i2h_grads, i2o_grads
 
-def get_rnn_corrs(net, prefix, randomTrainingExample, sum_before_outer=False):
+def get_rnn_corrs(net, prefix, randomTrainingExample, sum_before_outer=False, sqrtAGOP=False):
     num_test_nfa = 1
     i2h_agop = 0.
     i2o_agop = 0.
@@ -78,6 +85,10 @@ def get_rnn_corrs(net, prefix, randomTrainingExample, sum_before_outer=False):
         torch.save(i2o_agop.cpu(), os.path.join("saved_mats", prefix + "_i2o_agop.pt"))
 
         return corr_i2h, corr_i2o
+    
+    if sqrtAGOP:
+        i2h_agop = matrix_sqrt(i2h_agop)
+        i2o_agop = matrix_sqrt(i2o_agop)
 
     nfa_corrs = get_corrs(i2h_agop, i2o_agop, net, prefix)
     print("nfa_corrs, i2h, i2o:", nfa_corrs)
@@ -105,7 +116,7 @@ def measure_gru_nfa(net, x, y):
         _, hidden = net(xi, hidden)
     return grads
 
-def get_gru_corrs(net, prefix, randomTrainingExample, sum_before_outer=False):
+def get_gru_corrs(net, prefix, randomTrainingExample, sum_before_outer=False, sqrtAGOP=False):
     num_test_nfa = 1
     n_perturbs = 6
     agops = [0. for _ in range(n_perturbs)]
@@ -123,6 +134,9 @@ def get_gru_corrs(net, prefix, randomTrainingExample, sum_before_outer=False):
                 _, _, _, dim = g.shape
                 g = g.reshape(-1, dim)
                 agops[i] += g.T @ g
+    if sqrtAGOP:
+        for i in range(len(agops)):
+            agops[i] = matrix_sqrt(agops[i])
 
     corrs = []
 
@@ -145,27 +159,27 @@ def get_gru_corrs(net, prefix, randomTrainingExample, sum_before_outer=False):
     Uh_nfm = Uh_nfm.T @ Uh_nfm
 
     torch.save(Wz_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Wz_nfm.pt'))
-    torch.save(agops[0].cpu(), os.path.join("saved_mats", prefix + f'_Wz_agop.pt'))
+    torch.save(agops[0].cpu(), os.path.join("saved_mats", prefix + f'_Wz_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Wz_nfm, agops[0]))
 
     torch.save(Wr_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Wr_nfm.pt'))
-    torch.save(agops[1].cpu(), os.path.join("saved_mats", prefix + f'_Wr_agop.pt'))
+    torch.save(agops[1].cpu(), os.path.join("saved_mats", prefix + f'_Wr_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Wr_nfm, agops[1]))
 
     torch.save(Wh_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Wh_nfm.pt'))
-    torch.save(agops[2].cpu(), os.path.join("saved_mats", prefix + f'_Wh_agop.pt'))
+    torch.save(agops[2].cpu(), os.path.join("saved_mats", prefix + f'_Wh_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Wh_nfm, agops[2]))
 
     torch.save(Uz_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Uz_nfm.pt'))
-    torch.save(agops[3].cpu(), os.path.join("saved_mats", prefix + f'_Uz_agop.pt'))
+    torch.save(agops[3].cpu(), os.path.join("saved_mats", prefix + f'_Uz_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Uz_nfm, agops[3]))
 
     torch.save(Ur_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Ur_nfm.pt'))
-    torch.save(agops[4].cpu(), os.path.join("saved_mats", prefix + f'_Ur_agop.pt'))
+    torch.save(agops[4].cpu(), os.path.join("saved_mats", prefix + f'_Ur_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Ur_nfm, agops[4]))
 
     torch.save(Uh_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Uh_nfm.pt'))
-    torch.save(agops[5].cpu(), os.path.join("saved_mats", prefix + f'_Uh_agop.pt'))
+    torch.save(agops[5].cpu(), os.path.join("saved_mats", prefix + f'_Uh_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Uh_nfm, agops[5]))
 
     print("nfa_corrs:", corrs)

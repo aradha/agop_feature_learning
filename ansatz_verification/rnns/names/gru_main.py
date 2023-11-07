@@ -17,6 +17,9 @@ from copy import deepcopy
 torch.manual_seed(0)
 random.seed(0)
 
+sqrtAGOP = True
+print("Square root AGOP")
+
 all_letters = string.ascii_letters + " .,;'-"
 n_letters = len(all_letters) + 1 # Plus EOS marker
 
@@ -200,6 +203,10 @@ def get_nfa_corrs(net, prefix, sum_before_outer=False):
                 g = g.reshape(-1, dim)
                 agops[i] += g.T @ g
     
+    if sqrtAGOP:
+        for i in range(len(agops)):
+            agops[i] = matrix_sqrt(agops[i])
+
     corrs = []
 
     Wz_nfm = net.Wz.weight
@@ -221,27 +228,27 @@ def get_nfa_corrs(net, prefix, sum_before_outer=False):
     Uh_nfm = Uh_nfm.T @ Uh_nfm
 
     torch.save(Wz_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Wz_nfm.pt'))
-    torch.save(agops[0].cpu(), os.path.join("saved_mats", prefix + f'_Wz_agop.pt'))
+    torch.save(agops[0].cpu(), os.path.join("saved_mats", prefix + f'_Wz_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Wz_nfm, agops[0]))
 
     torch.save(Wr_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Wr_nfm.pt'))
-    torch.save(agops[1].cpu(), os.path.join("saved_mats", prefix + f'_Wr_agop.pt'))
+    torch.save(agops[1].cpu(), os.path.join("saved_mats", prefix + f'_Wr_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Wr_nfm, agops[1]))
 
     torch.save(Wh_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Wh_nfm.pt'))
-    torch.save(agops[2].cpu(), os.path.join("saved_mats", prefix + f'_Wh_agop.pt'))
+    torch.save(agops[2].cpu(), os.path.join("saved_mats", prefix + f'_Wh_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Wh_nfm, agops[2]))
 
     torch.save(Uz_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Uz_nfm.pt'))
-    torch.save(agops[3].cpu(), os.path.join("saved_mats", prefix + f'_Uz_agop.pt'))
+    torch.save(agops[3].cpu(), os.path.join("saved_mats", prefix + f'_Uz_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Uz_nfm, agops[3]))
 
     torch.save(Ur_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Ur_nfm.pt'))
-    torch.save(agops[4].cpu(), os.path.join("saved_mats", prefix + f'_Ur_agop.pt'))
+    torch.save(agops[4].cpu(), os.path.join("saved_mats", prefix + f'_Ur_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Ur_nfm, agops[4]))
 
     torch.save(Uh_nfm.cpu(), os.path.join("saved_mats", prefix + f'_Uh_nfm.pt'))
-    torch.save(agops[5].cpu(), os.path.join("saved_mats", prefix + f'_Uh_agop.pt'))
+    torch.save(agops[5].cpu(), os.path.join("saved_mats", prefix + f'_Uh_agop_sqrt_{sqrtAGOP}.pt'))
     corrs.append(corr(Uh_nfm, agops[5]))
 
     print("nfa_corrs:", corrs)
@@ -321,10 +328,11 @@ samples('English', 'ENG')
 samples('French', 'FRE')
 samples('Italian', 'ITA')
 
-with open(f'results/gru_nfa_corrs_lr_{learning_rate}.txt', "w") as f:
+with open(f'results/gru_nfa_corrs_lr_{learning_rate}_sqrtAGOP_{sqrtAGOP}.txt', "w") as f:
     f.writelines([str(x) + "," for x in init_corrs])
+    f.write("\n")
     f.writelines([str(x) + "," for x in end_corrs])
-with open(f'results/gru_train_losses_lr_{learning_rate}.txt', "w") as f:
+with open(f'results/gru_train_losses_lr_{learning_rate}_sqrtAGOP_{sqrtAGOP}.txt', "w") as f:
     f.writelines([str(x) + "," for x in all_losses])
 
 save_model(rnn.cpu(), init=False, learning_rate=learning_rate)

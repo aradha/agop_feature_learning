@@ -28,6 +28,7 @@ argparser.add_argument('--cuda', type=bool, default=1)
 argparser.add_argument('--chunk_len', type=int, default=200)
 argparser.add_argument('--batch_size', type=int, default=64)
 argparser.add_argument('--shuffle', action='store_true')
+argparser.add_argument('--sqrtAGOP', action='store_true')
 args = argparser.parse_args()
 
 for n_, v_ in args.__dict__.items():
@@ -97,6 +98,7 @@ elif args.model=="gru":
 
 sum_before_outer = False
 print("sum_before_outer",sum_before_outer)
+print("sqrtAGOP",args.sqrtAGOP)
 
 decoder_optimizer = torch.optim.Adam(decoder.parameters(), lr=args.learning_rate)
 criterion = nn.CrossEntropyLoss()
@@ -110,7 +112,7 @@ loss_avg = 0
 
 random_ex_fn = functools.partial(random_training_set, args.chunk_len, args.batch_size)
 
-init_corrs = corr_fn(decoder, f'{args.model}_init', random_ex_fn, sum_before_outer=sum_before_outer)
+init_corrs = corr_fn(decoder, f'{args.model}_init', random_ex_fn, sum_before_outer=sum_before_outer, sqrtAGOP=args.sqrtAGOP)
 
 try:
     print("Training for %d epochs..." % args.n_epochs)
@@ -131,9 +133,9 @@ try:
 
     print("Saving...")
     save()
-    end_corrs = corr_fn(decoder, f'{args.model}_end', random_ex_fn, sum_before_outer=sum_before_outer)
+    end_corrs = corr_fn(decoder, f'{args.model}_end', random_ex_fn, sum_before_outer=sum_before_outer, sqrtAGOP=args.sqrtAGOP)
 
-    with open(f'results/nfa_corrs_model_{args.model}_lr_{args.learning_rate}.txt', "w") as f:
+    with open(f'results/nfa_corrs_model_{args.model}_lr_{args.learning_rate}_sqrtAGOP_{args.sqrtAGOP}.txt', "w") as f:
         f.writelines([str(x) + "," for x in init_corrs])
         f.write(f'\n')
         f.writelines([str(x) + "," for x in end_corrs])

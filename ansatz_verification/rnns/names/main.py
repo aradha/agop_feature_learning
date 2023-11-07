@@ -17,6 +17,8 @@ from copy import deepcopy
 torch.manual_seed(0)
 random.seed(0)
 
+sqrtAGOP = True
+print("Square root AGOP:",sqrtAGOP)
 all_letters = string.ascii_letters + " .,;'-"
 n_letters = len(all_letters) + 1 # Plus EOS marker
 
@@ -212,6 +214,10 @@ def get_nfa_corrs(net, prefix, sum_before_outer=False):
 
         return corr_i2h, corr_i2o
 
+    if sqrtAGOP:
+        i2h_agop = matrix_sqrt(i2h_agop)
+        i2o_agop = matrix_sqrt(i2o_agop)
+
     nfa_corrs = get_corrs(i2h_agop, i2o_agop, net, prefix)
     print("nfa_corrs, i2h, i2o:", nfa_corrs)
     return nfa_corrs
@@ -258,10 +264,10 @@ for iter in range(1, n_iters + 1):
 corrh_end, corro_end = get_nfa_corrs(best_model, "end", sum_before_outer=sum_before_outer)
 
 
-with open(f'results/nfa_corrs_lr_{learning_rate}.txt', "w") as f:
+with open(f'results/nfa_corrs_lr_{learning_rate}_sqrtAGOP_{sqrtAGOP}.txt', "w") as f:
     f.write(f'init i2h: {corrh_init}, init i2o: {corro_init}, end i2h: {corrh_end}, end i2o: {corro_end}') 
 
-with open(f'results/train_losses_lr_{learning_rate}.txt', "w") as f:
+with open(f'results/train_losses_lr_{learning_rate}_sqrtAGOP_{sqrtAGOP}.txt', "w") as f:
     f.writelines([str(x) + "," for x in all_losses])
 
 max_length = 20
